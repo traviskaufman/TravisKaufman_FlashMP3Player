@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600"
+			   applicationComplete="initPlayer();">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.events.Event;
+			import flash.media.SoundMixer;
+			import flash.media.SoundTransform;
+			import flash.net.URLLoader;
+			import flash.xml.*;
+			
+			import mp3Player.*;
+			
+			private var playlist:Array;
+			private var payload:XML;
+			private var __gMix:SoundMixer;
+			private var sft:SoundTransform;
+			private var idTrack:Number = 0;
+			
+			public function initPlayer():void {
+				//TODO:Implementation Code
+			}
+			
+		]]>
+	</fx:Script>
+</s:Application>
