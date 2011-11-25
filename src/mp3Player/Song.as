@@ -19,9 +19,7 @@ package mp3Player {
 		public function Song(inID:Number, inURL:String, inTitle:String, inArtist:String) {
 			m_id = inID;
 			m_target = new Sound();
-			try {
-				m_target.load(new URLRequest(inURL));
-			} catch(e:Error) { Alert("Sorry, " + inURL + " failed to load: " + e.getStackTrace()); }
+			m_target.load(new URLRequest(inURL));
 			m_title = inTitle;
 			m_artist = inArtist;
 			m_channel = new SoundChannel();

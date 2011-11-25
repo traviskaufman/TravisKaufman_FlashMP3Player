@@ -9,24 +9,60 @@
 	
 	<fx:Script>
 		<![CDATA[
+			//TODO: Text for title/artist name, song selection buttons, shuffle mode, etc. 
 			import flash.events.Event;
-			import flash.media.SoundMixer;
 			import flash.media.SoundTransform;
 			import flash.net.URLLoader;
+			import flash.net.URLRequest;
 			import flash.xml.*;
 			
 			import mp3Player.*;
 			
 			private var playlist:Array;
 			private var payload:XML;
-			private var __gMix:SoundMixer;
-			private var sft:SoundTransform;
-			private var idTrack:Number = 0;
+			private var stf:SoundTransform;
+			private var idTrack:Number = 2;
+			private var xmlSrc:URLLoader;
 			
 			public function initPlayer():void {
-				//TODO:Implementation Code
+				stf = new SoundTransform();
+				xmlSrc = new URLLoader();
+				xmlSrc.dataFormat = URLLoaderDataFormat.TEXT;
+				xmlSrc.addEventListener(Event.COMPLETE, populatePlaylist);
+				xmlSrc.load(new URLRequest("https://files.nyu.edu/tmk272/public/mp3player/a4w_playlist.xml"));
 			}
+			
+			private function populatePlaylist(e:Event):void {
+				payload = new XML(xmlSrc.data);
+				var _L:Number = payload.child("SONG").length();
+				playlist = new Array(_L);
+				debug.text = "now i've reached here!!";
+				for (var i:Number = 0; i < _L; i++) {
+					var url:String = payload..URL[i];
+					var title:String = payload..TITLE[i];
+					var artist:String = payload..ARTIST[i];
+					playlist[i] = new Song(i, url, title, artist);
+				}
+				debug.text = playlist[0];
+			}
+			
+			public function s_play(e:MouseEvent):void {
+				idTrack = playlist[idTrack].getID();
+				debug.text = "okay, got past idTrack...";
+				playlist[idTrack].playSong();
+				playlist[idTrack].getChannel().soundTransform = stf;
+			}
+			
+			public function s_stop(e:MouseEvent):void {
+				playlist[idTrack].stopSong();
+			}
+			
+			
 			
 		]]>
 	</fx:Script>
+	
+	<s:Button id="playBtn" x="116" y="147" label="Play" click="s_play(event);"/>
+	<s:Label id="debug" x="116" y="176" text="Label"/>
+	<s:Button id="stopBtn" x="214" y="147" label="Stop" click="s_stop(event);"/>
 </s:Application>
