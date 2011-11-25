@@ -53,6 +53,10 @@ package mp3Player {
 			return m_playstate;
 		}
 		
+		public function getPosition():Number {
+			return m_position;
+		}
+		
 		public function playSong():void {
 			if (m_playstate == false) {
 				m_channel = m_target.play(m_position);
