@@ -5,5 +5,14 @@
 
 This simple MP3 player was designed using Flash 
 Builder 4.5, and is my Audio for the Web assignment.
+It is also my first endeavor with the Flash platform.
 
-It is also my first endeavor with the Flash platform. 
+Although this program is relatively simple, I tried to
+make it as scalable as possible and I also gave it my 
+best shot with design/interface formatting. 
+
+If you'd like you can literally zip up this folder and
+import it directly into Flash Builder 4.5+ and it should 
+be ready to be edited improved. However, also feel free
+to peruse my current implementations/code under the src/
+folder. Thank you and enjoy!  

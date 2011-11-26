@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
-			   xmlns:s="library://ns.adobe.com/flex/spark" 
-			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600"
-			   applicationComplete="initPlayer();">
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   minWidth="955" minHeight="600" applicationComplete="initPlayer();"
+			   backgroundColor="#61D5D6" pageTitle="SimpleMP3 by Travis Kaufman">
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	
 	<fx:Script>
 		<![CDATA[
-			//TODO: Text for title/artist name, song selection buttons, shuffle mode, etc. 
 			import flash.events.Event;
 			import flash.media.SoundTransform;
 			import flash.net.URLLoader;
 			import flash.net.URLRequest;
 			import flash.xml.*;
+			
 			import mp3Player.*;
 			
 			private var playlist:Array;
@@ -22,15 +23,22 @@
 			private var stf:SoundTransform;
 			private var idTrack:Number = 0;
 			private var xmlSrc:URLLoader;
+			private var trackString:String;
+			private var isShuffleEnabled:Boolean;
 			
+			// Initialize most variables (those not dependent on XML/media data) and start XML dl
 			public function initPlayer():void {
 				stf = new SoundTransform();
+				isShuffleEnabled = false;
+				stopBtn.enabled = false;
+				pauseBtn.enabled = false;
 				xmlSrc = new URLLoader();
 				xmlSrc.dataFormat = URLLoaderDataFormat.TEXT;
 				xmlSrc.addEventListener(Event.COMPLETE, populatePlaylist);
 				xmlSrc.load(new URLRequest("https://files.nyu.edu/tmk272/public/mp3player/a4w_playlist.xml"));
 			}
 			
+			// Parse XML data and send it to the appropriate places
 			private function populatePlaylist(e:Event):void {
 				payload = new XML(xmlSrc.data);
 				var _L:Number = payload.child("SONG").length();
@@ -41,40 +49,56 @@
 					var artist:String = payload..ARTIST[i];
 					playlist[i] = new Song(i, url, title, artist);
 				}
+				display.text = formatTrackString("Stopped", idTrack);
 			}
 			
+			// s_play: Handles the playing of media
 			public function s_play(inTrack:Number):void {
-				idTrack = playlist[idTrack].getID();
+				idTrack = playlist[inTrack].getID();
 				playlist[idTrack].playSong();
 				playlist[idTrack].getChannel().soundTransform = stf;
-				artistDisplay.text = playlist[idTrack].getArtist();
-				titleDisplay.text = playlist[idTrack].getTitle();
+				display.text = formatTrackString("Playing", idTrack);
 				playBtn.enabled = false;
 				pauseBtn.enabled = true;
 				stopBtn.enabled = true;
 			}
 			
+			// s_stop: Handles the stopping of media
 			public function s_stop():void {
 				playlist[idTrack].stopSong();
+				display.text = formatTrackString("Stopped", idTrack);
 				stopBtn.enabled = false;
 				pauseBtn.enabled = false;
 				playBtn.enabled = true;
 			}
 			
+			// s_pause: Handles the pausing of media
 			public function s_pause():void {
 				playlist[idTrack].pauseSong();
+				display.text = formatTrackString("Paused", idTrack);
 				pauseBtn.enabled = false;
 				playBtn.enabled = true;
 			}
 			
 			public function nextTrack():void {
-				if (idTrack < playlist.length - 1) {
+				if (isShuffleEnabled) {
+					var _R:Number = Math.floor(Math.random()*3);
+					if (playlist[idTrack].getPlayState() == true) {
+						playlist[idTrack].stopSong();
+						s_play(_R);
+					}
+					else {
+						idTrack = _R;
+						display.text = formatTrackString("Stopped", idTrack);
+					}
+				}
+				else if (idTrack < playlist.length - 1) {
 					if (playlist[idTrack].getPlayState() == true) {
 						playlist[idTrack].stopSong();
 						s_play(++idTrack);
 					}
-					else
-						++idTrack;
+					else 
+						display.text = formatTrackString("Stopped", ++idTrack);
 				}
 				else
 					s_stop();
@@ -87,20 +111,50 @@
 						s_play(--idTrack);
 					}
 					else
-						--idTrack;
+						display.text = formatTrackString("Stopped", --idTrack);
 				}
 				else
 					s_stop();
 			}
+			
+			public function setVolume():void {
+				 stf.volume = volumeBar.value;
+				 playlist[idTrack].getChannel().soundTransform = stf;
+			}
+			
+			private function formatTrackString(inState:String, inID:Number):String {
+				var _A:String = playlist[inID].getArtist();
+				var _T:String = playlist[inID].getTitle();
+				return inState + ": " + _A + " - " + _T;
+			}
+			
+			/* When shuffle is enabled, songs will be picked at random every time a user
+			 * advances (>>). Not so effective for a 4-song playlist, but since this 
+			 * player is meant to be scalable/extensible, it could be a cool feature
+			 * in the future.
+			 */
+			public function toggleShuffle():void {
+				if (shuffle.selected) 
+					isShuffleEnabled = true;
+				else
+					isShuffleEnabled = false;
+			}
 		]]>
 	</fx:Script>
 	
-	<s:Button id="playBtn" x="139" y="147" label="Play" click="s_play(idTrack);"/>
-	<s:Label id="artistDisplay" x="217" y="176"/>
-	<s:Button id="stopBtn" x="295" y="147" label="Stop" click="s_stop();"/>
-	<s:Label id="titleDisplay" x="217" y="205"/>
-	<s:Button id="nextBtn" x="373" y="147" label="&gt;&gt;" click="nextTrack();"/>
-	<s:Button id="prevBtn" x="61" y="147" label="&lt;&lt;" 
-			  click="prevTrack();"/>
-	<s:Button id="pauseBtn" x="217" y="147" label="Pause" click="s_pause();"/>
+	<s:Button id="playBtn" x="139" y="147" label="Play" chromeColor="#3BF344"
+			  click="s_play(idTrack);"/>
+	<s:Label id="display" x="216" y="176" color="#FF0000"/>
+	<s:Button id="stopBtn" x="295" y="147" label="Stop" chromeColor="#FF0000" click="s_stop();"/>
+	<s:Button id="nextBtn" x="373" y="147" label="&gt;&gt;" chromeColor="#00FFFC"
+			  click="nextTrack();"/>
+	<s:Button id="prevBtn" x="61" y="147" label="&lt;&lt;" chromeColor="#00FFFC" click="prevTrack();"/>
+	<s:Button id="pauseBtn" x="217" y="147" label="Pause" chromeColor="#00FFFC" click="s_pause();"/>
+	<s:HSlider id="volumeBar" x="108" y="183" change="setVolume();" chromeColor="#00FFFC"
+			   maximum="1.0" stepSize="0.1" value="1.0"/>
+	<s:Label x="61" y="182" fontStyle="italic" text="Volume"/>
+	<s:Label x="61" y="108" width="470" height="31" color="#FF0000" fontFamily="Georgia"
+			 fontSize="24" fontWeight="bold" text="SimpleMP3 - by Travis Kaufman"/>
+	<s:CheckBox id="shuffle" x="61" y="202" label="Shuffle Songs" 
+				click="toggleShuffle();"/>
 </s:Application>
