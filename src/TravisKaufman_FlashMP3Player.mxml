@@ -21,7 +21,7 @@
 			private var playlist:Array;
 			private var payload:XML;
 			private var stf:SoundTransform;
-			private var idTrack:Number = 2;
+			private var idTrack:Number = 0;
 			private var xmlSrc:URLLoader;
 			
 			public function initPlayer():void {
@@ -36,33 +36,58 @@
 				payload = new XML(xmlSrc.data);
 				var _L:Number = payload.child("SONG").length();
 				playlist = new Array(_L);
-				debug.text = "now i've reached here!!";
 				for (var i:Number = 0; i < _L; i++) {
 					var url:String = payload..URL[i];
 					var title:String = payload..TITLE[i];
 					var artist:String = payload..ARTIST[i];
 					playlist[i] = new Song(i, url, title, artist);
 				}
-				debug.text = playlist[0];
 			}
 			
-			public function s_play(e:MouseEvent):void {
+			public function s_play(inTrack:Number):void {
 				idTrack = playlist[idTrack].getID();
-				debug.text = "okay, got past idTrack...";
 				playlist[idTrack].playSong();
 				playlist[idTrack].getChannel().soundTransform = stf;
+				artistDisplay.text = playlist[idTrack].getArtist();
+				titleDisplay.text = playlist[idTrack].getTitle();
 			}
 			
-			public function s_stop(e:MouseEvent):void {
+			public function s_stop():void {
 				playlist[idTrack].stopSong();
 			}
 			
+			public function nextTrack():void {
+				if (idTrack < playlist.length - 1) {
+					if (playlist[idTrack].getPlayState() == true) {
+						playlist[idTrack].stopSong();
+						s_play(++idTrack);
+					}
+					else
+						++idTrack;
+				}
+				else
+					s_stop();
+			}
 			
-			
+			public function prevTrack():void {
+				if (idTrack >= 0) {
+					if (playlist[idTrack].getPlayState() == true) {
+						playlist[idTrack].stopSong();
+						s_play(--idTrack);
+					}
+					else
+						--idTrack;
+				}
+				else
+					s_stop();
+			}
 		]]>
 	</fx:Script>
 	
-	<s:Button id="playBtn" x="116" y="147" label="Play" click="s_play(event);"/>
-	<s:Label id="debug" x="116" y="176" text="Label"/>
-	<s:Button id="stopBtn" x="214" y="147" label="Stop" click="s_stop(event);"/>
+	<s:Button id="playBtn" x="139" y="147" label="Play" click="s_play(idTrack);"/>
+	<s:Label id="artistDisplay" x="190" y="176"/>
+	<s:Button id="stopBtn" x="217" y="147" label="Stop" click="s_stop();"/>
+	<s:Label id="titleDisplay" x="190" y="205"/>
+	<s:Button id="nextBtn" x="295" y="147" label="&gt;&gt;" click="nextTrack();"/>
+	<s:Button id="prevBtn" x="61" y="147" label="&lt;&lt;" click="prevTrack();"/>
 </s:Application>
