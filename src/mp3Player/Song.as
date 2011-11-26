@@ -79,10 +79,5 @@ package mp3Player {
 				m_channel.stop();
 			}
 		}
-		
-		public function restartSong():void {
-			if (m_playstate == true)
-				m_position = 0;
-		}
 	}
 }
