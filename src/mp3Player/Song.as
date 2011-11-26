@@ -73,11 +73,16 @@ package mp3Player {
 		}
 		
 		public function stopSong():void {
-			if (m_playstate == true) {
+			if (m_playstate == true || m_position != 0) {
 				m_position = 0;
 				m_playstate = false;
 				m_channel.stop();
 			}
-		}	
+		}
+		
+		public function restartSong():void {
+			if (m_playstate == true)
+				m_position = 0;
+		}
 	}
 }
