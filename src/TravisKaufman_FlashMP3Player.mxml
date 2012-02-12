@@ -82,8 +82,7 @@
 			
 			public function nextTrack():void {
 				if (isShuffleEnabled) {
-					var _R:Number = Math.floor(Math.random()*4);
-					//TODO:Switch out "4" with playlist.length()
+					var _R:Number = Math.floor(Math.random()*playlist.length());
 					if (playlist[idTrack].getPlayState() == true) {
 						playlist[idTrack].stopSong();
 						s_play(_R);
